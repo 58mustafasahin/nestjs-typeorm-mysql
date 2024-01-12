@@ -19,3 +19,11 @@ export type CreateUserPostParams = {
   title: string;
   description: string;
 };
+
+export type CreateUserAddressParams = {
+  line1: string;
+  line2: string;
+  zip: string;
+  city: string;
+  state: string;
+};

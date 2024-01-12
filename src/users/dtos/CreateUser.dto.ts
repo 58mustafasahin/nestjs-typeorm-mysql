@@ -1,5 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, MinLength } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsNotEmpty,
+  IsNotEmptyObject,
+  MinLength,
+  ValidateNested,
+} from 'class-validator';
+import { CreateUserAddressDto } from './CreateUserAddress.dto';
+import { Type } from 'class-transformer';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -10,7 +17,6 @@ export class CreateUserDto {
   @MinLength(3)
   username: string;
 
-  
   @ApiProperty({
     example: 'asD123.',
     required: true,
@@ -18,4 +24,9 @@ export class CreateUserDto {
   @IsNotEmpty()
   @MinLength(6)
   password: string;
+
+  @IsNotEmptyObject()
+  @ValidateNested()
+  @Type(() => CreateUserAddressDto)
+  address: CreateUserAddressDto;
 }

@@ -1,7 +1,9 @@
+import { Address } from '@app/typeorm/entities/Address';
 import { Post } from '@app/typeorm/entities/Post';
 import { Profile } from '@app/typeorm/entities/Profile';
 import { User } from '@app/typeorm/entities/User';
 import {
+  CreateUserAddressParams,
   CreateUserParams,
   CreateUserPostParams,
   CreateUserProfileParams,
@@ -19,10 +21,14 @@ export class UsersService {
     private userProfileRepository: Repository<Profile>,
     @InjectRepository(Post)
     private userPostRepository: Repository<Post>,
+    @InjectRepository(Address)
+    private userAddressRepository: Repository<Address>,
   ) {}
 
   getUsers() {
-    return this.userRepository.find({ relations: ['profile', 'posts'] });
+    return this.userRepository.find({
+      relations: ['profile', 'posts', 'address'],
+    });
   }
 
   createUser(userDetails: CreateUserParams) {
@@ -62,7 +68,7 @@ export class UsersService {
     const user = await this.userRepository.findOneBy({ id });
     if (!user)
       throw new HttpException(
-        'User not found. Cannot Create Profile',
+        'User not found. Cannot Create Post',
         HttpStatus.BAD_REQUEST,
       );
     const newPost = this.userPostRepository.create({
@@ -70,5 +76,22 @@ export class UsersService {
       user,
     });
     return this.userPostRepository.save(newPost);
+  }
+
+  async createUserAddress(
+    id: number,
+    userAddressDetails: CreateUserAddressParams,
+  ) {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user)
+      throw new HttpException(
+        'User not found. Cannot Create Address',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const newAddress = this.userAddressRepository.create(userAddressDetails);
+    const savedAddress = await this.userAddressRepository.save(newAddress);
+    user.address = savedAddress;
+    return this.userRepository.save(user);
   }
 }
