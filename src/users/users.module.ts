@@ -10,6 +10,11 @@ import { Address } from '@app/typeorm/entities/Address';
 @Module({
   imports: [TypeOrmModule.forFeature([User, Profile, Post, Address])],
   controllers: [UsersController],
-  providers: [UsersService]
+  providers: [
+    {
+      provide: 'USER_SERVICE',
+      useClass: UsersService,
+    },
+  ],
 })
 export class UsersModule {}

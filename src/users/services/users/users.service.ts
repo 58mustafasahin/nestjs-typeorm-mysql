@@ -7,10 +7,12 @@ import {
   CreateUserParams,
   CreateUserPostParams,
   CreateUserProfileParams,
+  SerializedUserParams,
   UpdateUserParams,
 } from '@app/utils/types';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -25,10 +27,17 @@ export class UsersService {
     private userAddressRepository: Repository<Address>,
   ) {}
 
-  getUsers() {
-    return this.userRepository.find({
-      relations: ['profile', 'posts', 'address'],
-    });
+  async getUsers() {
+    return (
+      await this.userRepository.find({
+        relations: ['profile', 'posts', 'address'],
+      })
+    ).map((user) => plainToClass(SerializedUserParams, user));
+  }
+
+  async getUserByUsername(username: string) {
+    const user = await this.userRepository.findOneBy({ username: username });
+    return new SerializedUserParams(user);
   }
 
   createUser(userDetails: CreateUserParams) {

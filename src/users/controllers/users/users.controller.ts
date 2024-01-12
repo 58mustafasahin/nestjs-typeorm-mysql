@@ -4,27 +4,43 @@ import { CreateUserPostDto } from '@app/users/dtos/CreateUserPost.dto';
 import { CreateUserProfileDto } from '@app/users/dtos/CreateUserProfile.dto';
 import { UpdateUserDto } from '@app/users/dtos/UpdateUser.dto';
 import { UsersService } from '@app/users/services/users/users.service';
+import { SerializedUserParams } from '@app/utils/types';
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
+  HttpException,
+  HttpStatus,
+  Inject,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('User')
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) {}
+  constructor(
+    @Inject('USER_SERVICE') private readonly userService: UsersService,
+  ) {}
 
   @Get()
   async getUsers() {
     const users = await this.userService.getUsers();
     return users;
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get('/:username')
+  async getUserByUsername(@Param('username') username: string) {
+    const user = await this.userService.getUserByUsername(username);
+    if (user) return user;
+    else throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
   }
 
   @Post()
