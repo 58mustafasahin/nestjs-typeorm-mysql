@@ -37,7 +37,12 @@ export class UsersService {
 
   async getUserByUsername(username: string) {
     const user = await this.userRepository.findOneBy({ username: username });
-    return new SerializedUserParams(user);
+    return user;
+  }
+
+  async getUserById(id: number) {
+    const user = await this.userRepository.findOneBy({ id: id });
+    return user;
   }
 
   createUser(userDetails: CreateUserParams) {

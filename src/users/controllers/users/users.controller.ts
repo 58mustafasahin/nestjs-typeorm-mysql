@@ -3,6 +3,8 @@ import { CreateUserAddressDto } from '@app/users/dtos/CreateUserAddress.dto';
 import { CreateUserPostDto } from '@app/users/dtos/CreateUserPost.dto';
 import { CreateUserProfileDto } from '@app/users/dtos/CreateUserProfile.dto';
 import { UpdateUserDto } from '@app/users/dtos/UpdateUser.dto';
+import { UserNotFoundException } from '@app/users/exceptions/UserNotFound.exception';
+import { HttpExceptionFilter } from '@app/users/filters/HttpException.filter';
 import { UsersService } from '@app/users/services/users/users.service';
 import { SerializedUserParams } from '@app/utils/types';
 import {
@@ -18,6 +20,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseFilters,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -36,11 +39,20 @@ export class UsersController {
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get('/:username')
+  @Get('getByUsername/:username')
   async getUserByUsername(@Param('username') username: string) {
     const user = await this.userService.getUserByUsername(username);
-    if (user) return user;
+    if (user) return new SerializedUserParams(user);
     else throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseFilters(HttpExceptionFilter)
+  @Get('getById/:id')
+  async getUserById(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.userService.getUserById(id);
+    if (user) return new SerializedUserParams(user);
+    else throw new UserNotFoundException();
   }
 
   @Post()
