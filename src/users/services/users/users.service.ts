@@ -2,6 +2,7 @@ import { Address } from '@app/typeorm/entities/Address';
 import { Post } from '@app/typeorm/entities/Post';
 import { Profile } from '@app/typeorm/entities/Profile';
 import { User } from '@app/typeorm/entities/User';
+import { encodePassword } from '@app/utils/bcrypt';
 import {
   CreateUserAddressParams,
   CreateUserParams,
@@ -46,8 +47,10 @@ export class UsersService {
   }
 
   createUser(userDetails: CreateUserParams) {
+    const password = encodePassword(userDetails.password);
     const newUser = this.userRepository.create({
       ...userDetails,
+      password,
       createdAt: new Date(),
     });
     this.userRepository.save(newUser);
