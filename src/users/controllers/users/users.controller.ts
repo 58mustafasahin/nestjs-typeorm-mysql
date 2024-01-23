@@ -1,3 +1,4 @@
+import { AuthenticatedGuard } from '@app/auth/utils/LocalGuard';
 import { CreateUserDto } from '@app/users/dtos/CreateUser.dto';
 import { CreateUserAddressDto } from '@app/users/dtos/CreateUserAddress.dto';
 import { CreateUserPostDto } from '@app/users/dtos/CreateUserPost.dto';
@@ -21,6 +22,7 @@ import {
   Post,
   Put,
   UseFilters,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -32,6 +34,7 @@ export class UsersController {
     @Inject('USER_SERVICE') private readonly userService: UsersService,
   ) {}
 
+  @UseGuards(AuthenticatedGuard)
   @Get()
   async getUsers() {
     const users = await this.userService.getUsers();

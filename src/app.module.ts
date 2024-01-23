@@ -2,12 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './typeorm/entities/User';
 import { UsersModule } from './users/users.module';
-import { Profile } from './typeorm/entities/Profile';
-import { Post } from './typeorm/entities/Post';
-import { Address } from './typeorm/entities/Address';
 import { AuthModule } from './auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
+import entities from './typeorm/entities';
 
 @Module({
   imports: [
@@ -18,11 +16,12 @@ import { AuthModule } from './auth/auth.module';
       username: 'test',
       password: 'test123',
       database: 'nestjs_db',
-      entities: [User, Profile, Post, Address],
+      entities: entities,
       synchronize: true,
     }),
     UsersModule,
     AuthModule,
+    PassportModule.register({ session: true }),
   ],
   controllers: [AppController],
   providers: [AppService],
