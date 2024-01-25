@@ -15,7 +15,7 @@ export class AuthController {
     session.authenticated = true;
     return session;
   }
-  
+
   @UseGuards(AuthenticatedGuard)
   @Get('status')
   async getAuthStatus(@Req() req: Request) {
